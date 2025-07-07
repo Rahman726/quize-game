@@ -12,6 +12,7 @@ class Difficulty:
     EASY = "Easy"
     MEDIUM = "Medium"
     HARD = "Hard"
+    expert = "expert"
 
 class ColorfulQuizGame:
     def __init__(self, root):
