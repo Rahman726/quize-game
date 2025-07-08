@@ -3,3 +3,5 @@ class Difficulty:
     MEDIUM = "Medium"
     HARD = "Hard"
     EXPERT = "Expert"
+
+__all__ = ['Difficulty']

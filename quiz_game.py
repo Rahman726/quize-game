@@ -5,7 +5,6 @@ import random
 import time
 import json
 import os
-import google.generativeai as genai
 import asyncio
 
 class Difficulty:
@@ -69,8 +68,8 @@ class ColorfulQuizGame:
         """Configure Gemini AI with API key"""
         try:
             # Replace with your actual API key
-            genai.configure(api_key="YOUR_API_KEY")
-            self.gemini_model = genai.GenerativeModel('gemini-pro')
+            api_key="YOUR_API_KEY"
+            self.gemini_model =('gemini-pro')
         except Exception as e:
             messagebox.showerror("AI Error", f"Failed to initialize Gemini AI: {str(e)}")
             self.gemini_model = None

@@ -15,9 +15,9 @@ class WelcomeView:
         name_frame = ttk.Frame(self.frame)
         name_frame.pack(pady=10)
         
-        ttk.Label(name_frame, text="Enter your name:").pack(side=tk.LEFT)
+        ttk.Label(name_frame, text="Enter your name:").packside ()
         self.name_entry = ttk.Entry(name_frame, font=("Helvetica", 14))
-        self.name_entry.pack(side=tk.LEFT)
+        self.name_entry.packside  ()
         
         # Start button
         start_button = ttk.Button(self.frame, text="Start Game", 
@@ -32,7 +32,7 @@ class WelcomeView:
             self.controller.show_error("Please enter your name!")
 
     def show(self):
-        self.frame.pack(fill=tk.BOTH, expand=True)
+        self.frame.pack(fillexpand=True)
 
     def hide(self):
         self.frame.pack_forget()
