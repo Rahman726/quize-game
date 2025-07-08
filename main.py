@@ -1,7 +1,8 @@
 import tkinter as tk
-from quiz-game.app import QuizApp
+import app
+
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = QuizApp(root)
+    app = (root)
     root.mainloop()

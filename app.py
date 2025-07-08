@@ -1,34 +1,29 @@
-import tkinter as tk
-from core.quiz_engine import QuizEngine
-from core.ai_integration import AIIntegration
-from styles.theme import configure_styles
-from views.welcome import WelcomeView
-from views.category import CategoryView
-# ... other view imports
+import os
+import sys
+
+# Get the absolute path to the parent directory
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
+
+try:
+    from core.quiz_engine import QuizEngine
+except ImportError as e:
+    print(f"ImportError: {e}")
+    print("Current Python path:")
+    for path in sys.path:
+        print(f"  - {path}")
+    raise
 
 class QuizApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("AI-Powered Quiz Game")
-        self.root.geometry("900x700")
+    def __init__(self):
+        self.engine = QuizEngine()
         
-        self.quiz_engine = QuizEngine()
-        self.ai = AIIntegration()
-        self.styles = configure_styles()
-        
-        # Initialize views
-        self.welcome_view = WelcomeView(root, self)
-        self.category_view = CategoryView(root, self)
-        # ... other views
-        
-        self.show_welcome()
+    def run(self):
+        print("Welcome to the Quiz Game!")
+        self.engine.load_questions()
+        self.engine.run_quiz()
+        self.engine.display_results()
 
-    def show_welcome(self):
-        self.welcome_view.show()
-
-    def start_game(self, player_name):
-        self.player_name = player_name
-        self.welcome_view.hide()
-        self.category_view.show()
-
-    # ... other controller methods
+if __name__ == "__main__":
+    app = QuizApp()
+    app.run()
