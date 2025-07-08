@@ -1,47 +1,83 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
 from core.quiz_engine import QuizEngine
+from core.ai_integration import AIIntegration
 
 class QuizApp:
-    # ... existing code ...
-    
-    def show_ai_options(self):
-        """Show AI quiz generation screen"""
+    def __init__(self, root):
+        """Initialize the application with root window"""
+        self.root = root
+        self.root.title("Quiz Game")
+        self.root.geometry("800x600")
+        
+        # Initialize core components
+        self.engine = QuizEngine()
+        self.ai = AIIntegration()
+        
+        # Setup UI
+        self.setup_ui()
+        self.show_welcome_screen()
+
+    def setup_ui(self):
+        """Create main application frames"""
+        self.main_frame = ttk.Frame(self.root)
+        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+
+    def show_welcome_screen(self):
+        """Display welcome screen"""
         self.clear_frame()
         
-        ttk.Label(self.main_frame, 
-                text="AI Quiz Generator",
-                style="Title.TLabel").pack(pady=20)
+        ttk.Label(
+            self.main_frame,
+            text="Welcome to Quiz Game!",
+            font=('Helvetica', 24)
+        ).pack(pady=50)
         
-        # Topic Entry
-        ttk.Label(self.main_frame, text="Enter Topic:").pack()
-        self.ai_topic_entry = ttk.Entry(self.main_frame, width=30)
-        self.ai_topic_entry.pack(pady=5)
-        
-        # Question Count
-        ttk.Label(self.main_frame, text="Number of Questions:").pack()
-        self.ai_count_var = tk.IntVar(value=10)
-        ttk.Spinbox(self.main_frame, from_=5, to=20, 
-                   textvariable=self.ai_count_var).pack(pady=5)
-        
-        # Generate Button
-        ttk.Button(self.main_frame, 
-                 text="Generate Quiz",
-                 command=self.start_ai_quiz).pack(pady=20)
+        ttk.Button(
+            self.main_frame,
+            text="Start Quiz",
+            command=self.show_category_selection
+        ).pack(pady=20)
 
-    async def start_ai_quiz(self):
-        """Start an AI-generated quiz"""
-        topic = self.ai_topic_entry.get().strip()
-        if not topic:
-            messagebox.showwarning("Error", "Please enter a topic!")
-            return
-            
-        self.show_loading_screen("Generating questions...")
+    def clear_frame(self):
+        """Clear all widgets from main frame"""
+        for widget in self.main_frame.winfo_children():
+            widget.destroy()
+
+    def show_category_selection(self):
+        """Show category selection screen"""
+        self.clear_frame()
         
-        count = self.ai_count_var.get()
-        success = await self.engine.generate_ai_quiz(topic, count)
+        ttk.Label(
+            self.main_frame,
+            text="Select Category",
+            font=('Helvetica', 20)
+        ).pack(pady=30)
         
-        if success:
-            self.show_question()
-        else:
-            self.show_category_selection()
+        # Add your category buttons here
+        categories = self.engine.get_categories()
+        for category in categories:
+            ttk.Button(
+                self.main_frame,
+                text=category,
+                command=lambda c=category: self.start_quiz(c)
+            ).pack(pady=10)
+
+    def start_quiz(self, category):
+        """Start quiz with selected category"""
+        self.engine.start_quiz(category)
+        self.show_question()
+
+    def show_question(self):
+        """Display current question"""
+        self.clear_frame()
+        question = self.engine.get_current_question()
+        
+        # Add your question display logic here
+        ttk.Label(
+            self.main_frame,
+            text=question['question'],
+            wraplength=700
+        ).pack(pady=20)
+
+    # ... [add other methods as needed] ...
