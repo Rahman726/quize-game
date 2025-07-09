@@ -3,6 +3,8 @@ import json
 import asyncio
 from tkinter import messagebox
 from constants.difficulty import Difficulty
+from dotenv import load_dotenv  
+import os
 
 class AIIntegration:
     def __init__(self):
@@ -15,8 +17,8 @@ class AIIntegration:
         """Configure the Gemini AI API with proper error handling"""
         try:
             # Replace with your actual API key
-            genai.configure(api_key="AIzaSyAyoNcqDldQLlTuMbcQYcPYzcAj55to9VA")
-            
+            ApiKey = os.getenv("GEMINI_API_KEY")
+            genai.configure(api_key=ApiKey)
             # Initialize model with safety settings
             self.model = genai.GenerativeModel(
                 'gemini-pro',

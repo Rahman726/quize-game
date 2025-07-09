@@ -5,6 +5,7 @@ from constants import (
     DEFAULT_QUESTIONS,
     Difficulty
 )
+from tkinter import messagebox
 from core.ai_integration import AIIntegration
 
 class QuizEngine:
@@ -59,7 +60,20 @@ class QuizEngine:
         self.score = 0
         self.time_left = 15
         return len(self.filtered_questions)
-
+    
+    async def generate_ai_quiz(self, topic, count=10, difficulty=None):
+        """Generate and start an AI-powered quiz"""
+        questions = await self.ai.generate_quiz_questions(topic, count, difficulty)
+        
+        if not questions:
+            messagebox.showwarning("AI Failed", "Using default questions instead")
+            self.filtered_questions = [q for q in self.questions if q['category'] == topic][:count]
+        else:
+            self.filtered_questions = questions
+        
+        self.current_question_index = 0
+        self.score = 0
+        return len(self.filtered_questions)
 
     def get_current_question(self):
         """Return current question data"""
