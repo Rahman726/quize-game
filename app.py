@@ -20,27 +20,108 @@ class QuizApp:
         self.setup_ui()
         self.show_welcome_screen()
 
-      # Create an event loop for async operations
+       # Setup async infrastructure
         self.loop = asyncio.new_event_loop()
         self.ai_thread = None
+        self.running_tasks = []
 
     def run_async(self, coro):
-        """Run an async coroutine in a separate thread"""
+        """Run an async coroutine in a background thread"""
         def start_loop():
             asyncio.set_event_loop(self.loop)
             self.loop.run_forever()
             
-        if not self.ai_thread or not self.ai_thread.is_alive():
+        # Start the event loop thread if not running
+        if self.ai_thread is None or not self.ai_thread.is_alive():
             self.ai_thread = threading.Thread(target=start_loop, daemon=True)
             self.ai_thread.start()
-            
+        
+        # Schedule the coroutine and return the future
         future = asyncio.run_coroutine_threadsafe(coro, self.loop)
+        self.running_tasks.append(future)
         return future
     def setup_ui(self):
-        """Create main application frames"""
+        """Initialize main UI components"""
         self.main_frame = ttk.Frame(self.root)
         self.main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        
+        # Configure styles
+        self.style = ttk.Style()
+        self.style.configure('TButton', font=('Helvetica', 12), padding=10)
+        self.style.configure('AI.TButton', background='#4CAF50', foreground='white')
 
+    def show_ai_options(self):
+        """Show AI quiz options screen"""
+        self.clear_frame()
+        
+        ttk.Label(
+            self.main_frame,
+            text="AI Quiz Generator",
+            font=('Helvetica', 20)
+        ).pack(pady=20)
+        
+        # Topic Entry
+        ttk.Label(self.main_frame, text="Enter Topic:").pack()
+        self.ai_topic_entry = ttk.Entry(self.main_frame, width=30)
+        self.ai_topic_entry.pack(pady=5)
+        
+        # Question Count
+        ttk.Label(self.main_frame, text="Number of Questions:").pack()
+        self.ai_count_var = tk.IntVar(value=10)
+        ttk.Spinbox(self.main_frame, from_=5, to=20, textvariable=self.ai_count_var).pack(pady=5)
+        
+        # Generate Button - Now properly connected
+        ttk.Button(
+            self.main_frame,
+            text="Generate Quiz",
+            command=self.start_ai_quiz_wrapper,  # Changed to wrapper function
+            style='AI.TButton'
+        ).pack(pady=20)
+        
+        # Back Button
+        ttk.Button(
+            self.main_frame,
+            text="Back",
+            command=self.show_category_selection
+        ).pack(pady=10)
+    def start_ai_quiz_wrapper(self):
+        """Wrapper function to start AI quiz generation"""
+        topic = self.ai_topic_entry.get().strip()
+        if not topic:
+            messagebox.showwarning("Error", "Please enter a topic!")
+            return
+            
+        count = self.ai_count_var.get()
+        
+        # Show loading screen
+        self.clear_frame()
+        ttk.Label(
+            self.main_frame,
+            text="Generating questions...",
+            font=('Helvetica', 16)
+        ).pack(pady=50)
+        self.root.update()
+        
+        # Run the async task in background
+        self.run_async(self.async_start_ai_quiz(topic, count))
+
+    async def async_start_ai_quiz(self, topic, count):
+        """The actual async quiz starter"""
+        try:
+            success = await self.engine.generate_ai_quiz(topic, count)
+            if success:
+                # Schedule UI update on main thread
+                self.root.after(0, self.show_question)
+            else:
+                self.root.after(0, lambda: (
+                    messagebox.showerror("Error", "Failed to generate questions"),
+                    self.show_category_selection()
+                ))
+        except Exception as e:
+            self.root.after(0, lambda: (
+                messagebox.showerror("Error", f"AI Error: {str(e)}"),
+                self.show_category_selection()
+            ))
     def show_welcome_screen(self):
         """Display welcome screen"""
         self.clear_frame()
