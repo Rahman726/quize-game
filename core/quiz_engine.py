@@ -60,4 +60,26 @@ class QuizEngine:
         self.time_left = 15
         return len(self.filtered_questions)
 
-    # ... [Include all other methods from previous implementation]
+
+    def get_current_question(self):
+        """Return current question data"""
+        if 0 <= self.current_question_index < len(self.filtered_questions):
+            return self.filtered_questions[self.current_question_index]
+        return None
+
+    def check_answer(self, selected_index):
+        """Check if answer is correct"""
+        current_q = self.get_current_question()
+        if current_q and selected_index == current_q['answer']:
+            self.score += 1
+            return True
+        return False
+
+    def next_question(self):
+        """Move to next question"""
+        self.current_question_index += 1
+        return self.has_more_questions()
+
+    def has_more_questions(self):
+        """Check if more questions remain"""
+        return self.current_question_index < len(self.filtered_questions)

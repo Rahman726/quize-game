@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk ,messagebox
 from core.quiz_engine import QuizEngine
 from core.ai_integration import AIIntegration
 
@@ -67,17 +67,57 @@ class QuizApp:
         """Start quiz with selected category"""
         self.engine.start_quiz(category)
         self.show_question()
-
     def show_question(self):
         """Display current question"""
         self.clear_frame()
         question = self.engine.get_current_question()
         
-        # Add your question display logic here
+        if not question:
+            self.show_results()
+            return
+            
+        # Question text
         ttk.Label(
             self.main_frame,
             text=question['question'],
+            font=('Helvetica', 16),
             wraplength=700
         ).pack(pady=20)
+        
+        # Options
+        for i, option in enumerate(question['options']):
+            ttk.Button(
+                self.main_frame,
+                text=option,
+                command=lambda idx=i: self.check_answer(idx),
+                width=40
+            ).pack(pady=5)
 
-    # ... [add other methods as needed] ...
+    def check_answer(self, selected_index):
+        """Check selected answer and proceed"""
+        is_correct = self.engine.check_answer(selected_index)
+        feedback = "Correct!" if is_correct else "Incorrect!"
+        messagebox.showinfo("Result", feedback)
+        self.next_question()
+
+    def next_question(self):
+        """Move to next question or show results"""
+        if self.engine.next_question():
+            self.show_question()
+        else:
+            self.show_results()
+
+    def show_results(self):
+        """Display final score"""
+        self.clear_frame()
+        ttk.Label(
+            self.main_frame,
+            text=f"Quiz Completed!\nScore: {self.engine.score}/{len(self.engine.filtered_questions)}",
+            font=('Helvetica', 24)
+        ).pack(pady=50)
+        
+        ttk.Button(
+            self.main_frame,
+            text="Play Again",
+            command=self.show_welcome_screen
+        ).pack(pady=20)
