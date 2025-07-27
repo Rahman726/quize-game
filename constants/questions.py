@@ -99,7 +99,7 @@ DEFAULT_QUESTIONS = {
             {
                 "question": "What is the derivative of sin(x)?",
                 "options": ["cos(x)", "-cos(x)", "tan(x)", "-sin(x)"],
-                "answer": 0,
+                "answer": 2,
                 "explanation": "d/dx[sin(x)] = cos(x) is a basic differentiation rule."
             }
         ],
